@@ -12,8 +12,9 @@ var is_animating: bool = false
 
 @onready var front_texture: TextureRect = get_node_or_null("CardFrontTexture")
 @onready var back_texture: TextureRect = get_node_or_null("CardBackTexture")
-@onready var rank_label: Label = get_node_or_null("RankLabel")
-@onready var suit_label: Label = get_node_or_null("SuitLabel")
+@onready var top_rank_label: Label = get_node_or_null("TopRankLabel")
+@onready var bottom_rank_label: Label = get_node_or_null("BottomRankLabel")
+@onready var center_suit_label: Label = get_node_or_null("CenterSuitLabel")
 @onready var manilha_glow: TextureRect = get_node_or_null("ManilhaGlow")
 
 func _ready() -> void:
@@ -48,21 +49,25 @@ func update_visuals() -> void:
 	if front_texture != null:
 		front_texture.visible = not show_back
 	
-	if rank_label != null:
-		rank_label.text = card_data.get_rank_name()
-		rank_label.visible = not show_back
+	var r_text = card_data.get_rank_name()
+	if top_rank_label != null:
+		top_rank_label.text = r_text
+		top_rank_label.visible = not show_back
+	if bottom_rank_label != null:
+		bottom_rank_label.text = r_text
+		bottom_rank_label.visible = not show_back
 		
-	if suit_label != null:
-		suit_label.text = _get_suit_symbol(card_data.suit)
-		suit_label.modulate = _get_suit_color(card_data.suit)
-		suit_label.visible = not show_back
+	if center_suit_label != null:
+		center_suit_label.text = _get_suit_symbol(card_data.suit)
+		center_suit_label.modulate = _get_suit_color(card_data.suit)
+		center_suit_label.visible = not show_back
 	
 	if manilha_glow != null:
 		manilha_glow.visible = card_data.is_manilha and not show_back
 		if card_data.is_manilha and card_data.suit == CardData.Suit.PAUS:
-			manilha_glow.modulate = Color(1.0, 0.9, 0.2, 1.0)
+			manilha_glow.modulate = Color(1.0, 0.9, 0.2, 1.0) # Zap: Dourado vivo
 		elif card_data.is_manilha:
-			manilha_glow.modulate = Color(0.2, 1.0, 0.6, 0.9)
+			manilha_glow.modulate = Color(0.3, 1.0, 0.6, 0.95) # Outras: Esmeralda
 
 func animate_flip(reveal: bool, duration: float = 0.3) -> void:
 	is_animating = true
@@ -96,7 +101,7 @@ func _get_suit_color(suit: CardData.Suit) -> Color:
 		CardData.Suit.OUROS, CardData.Suit.COPAS:
 			return Color("c1121f")
 		CardData.Suit.ESPADAS, CardData.Suit.PAUS:
-			return Color("101010")
+			return Color("151515")
 		_:
 			return Color.WHITE
 
