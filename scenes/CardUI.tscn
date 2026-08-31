@@ -14,6 +14,20 @@ offset_bottom = 130.0
 mouse_filter = 0
 script = ExtResource("1_cardui")
 
+[node name="CardShadow" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.35)
+
 [node name="CardFrontTexture" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -39,6 +53,7 @@ expand_mode = 1
 
 [node name="ManilhaGlow" type="TextureRect" parent="."]
 visible = false
+modulate = Color(1, 0.9, 0.3, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

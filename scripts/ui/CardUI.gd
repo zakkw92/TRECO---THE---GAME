@@ -6,11 +6,32 @@ signal card_hovered(card_data: CardData)
 
 @export var card_data: CardData
 
+# Propriedades de Estado
 var is_hovered: bool = false
 var is_interactive: bool = true
 var is_face_down_override: bool = false
-var is_animating: bool = false
 
+# Física de Molas (Spring Dynamics estilo Balatro)
+var spring_pos: Vector2 = Vector2.ZERO
+var spring_vel: Vector2 = Vector2.ZERO
+var spring_rot: float = 0.0
+var spring_rot_vel: float = 0.0
+var spring_scale: Vector2 = Vector2.ONE
+var spring_scale_vel: Vector2 = Vector2.ZERO
+
+var target_pos: Vector2 = Vector2.ZERO
+var target_rot: float = 0.0
+var target_scale: Vector2 = Vector2.ONE
+
+# Constantes da Mola
+const SPRING_STIFFNESS: float = 240.0
+const SPRING_DAMPING: float = 16.0
+
+# Inclinação 3D
+var current_tilt: Vector2 = Vector2.ZERO
+var target_tilt: Vector2 = Vector2.ZERO
+
+@onready var shadow_rect: ColorRect = get_node_or_null("CardShadow")
 @onready var front_texture: TextureRect = get_node_or_null("CardFrontTexture")
 @onready var back_texture: TextureRect = get_node_or_null("CardBackTexture")
 @onready var top_rank_label: Label = get_node_or_null("TopRankLabel")
@@ -18,23 +39,81 @@ var is_animating: bool = false
 @onready var center_suit_label: Label = get_node_or_null("CenterSuitLabel")
 @onready var manilha_glow: TextureRect = get_node_or_null("ManilhaGlow")
 
+var card_material: ShaderMaterial
+
 func _ready() -> void:
 	custom_minimum_size = Vector2(90, 130)
 	size = Vector2(90, 130)
 	pivot_offset = size / 2.0
+	
 	if not mouse_entered.is_connected(_on_mouse_entered):
 		mouse_entered.connect(_on_mouse_entered)
 	if not mouse_exited.is_connected(_on_mouse_exited):
 		mouse_exited.connect(_on_mouse_exited)
 	if not gui_input.is_connected(_on_gui_input):
 		gui_input.connect(_on_gui_input)
+	
+	_setup_shader_material()
 	update_visuals()
+
+func _setup_shader_material() -> void:
+	var shader = preload("res://shaders/card_tilt.gdshader")
+	card_material = ShaderMaterial.new()
+	card_material.shader = shader
+	if front_texture != null:
+		front_texture.material = card_material
+	if back_texture != null:
+		back_texture.material = card_material
 
 func setup(p_card_data: CardData, p_interactive: bool = true, p_force_face_down: bool = false) -> void:
 	card_data = p_card_data
 	is_interactive = p_interactive
 	is_face_down_override = p_force_face_down
 	update_visuals()
+
+func _process(delta: float) -> void:
+	_update_spring_physics(delta)
+	_update_card_tilt(delta)
+
+func _update_spring_physics(delta: float) -> void:
+	# 1. Posição da Mola
+	var force_pos = (target_pos - spring_pos) * SPRING_STIFFNESS - spring_vel * SPRING_DAMPING
+	spring_vel += force_pos * delta
+	spring_pos += spring_vel * delta
+	position = spring_pos
+	
+	# 2. Rotação da Mola
+	var force_rot = (target_rot - spring_rot) * SPRING_STIFFNESS - spring_rot_vel * SPRING_DAMPING
+	spring_rot_vel += force_rot * delta
+	spring_rot += spring_rot_vel * delta
+	rotation = spring_rot
+	
+	# 3. Escala (Squash & Stretch)
+	var force_scale = (target_scale - spring_scale) * (SPRING_STIFFNESS * 1.2) - spring_scale_vel * SPRING_DAMPING
+	spring_scale_vel += force_scale * delta
+	spring_scale += spring_scale_vel * delta
+	scale = spring_scale
+
+func _update_card_tilt(delta: float) -> void:
+	if is_hovered and is_interactive:
+		var local_mouse = get_local_mouse_position()
+		var norm_x = clamp((local_mouse.x / size.x) * 2.0 - 1.0, -1.0, 1.0)
+		var norm_y = clamp((local_mouse.y / size.y) * 2.0 - 1.0, -1.0, 1.0)
+		target_tilt = Vector2(norm_x, norm_y)
+	else:
+		target_tilt = Vector2.ZERO
+	
+	current_tilt = current_tilt.lerp(target_tilt, delta * 14.0)
+	
+	# Atualiza shader e sombra
+	if card_material != null:
+		card_material.set_shader_parameter("mouse_offset", current_tilt)
+	
+	if shadow_rect != null:
+		# Sombra se move em oposição à inclinação 3D
+		var shadow_dist = 14.0 if is_hovered else 6.0
+		shadow_rect.position = Vector2(4.0, 4.0) - current_tilt * shadow_dist
+		shadow_rect.modulate.a = 0.45 if is_hovered else 0.25
 
 func update_visuals() -> void:
 	if card_data == null:
@@ -69,15 +148,16 @@ func update_visuals() -> void:
 	
 	if manilha_glow != null:
 		manilha_glow.visible = card_data.is_manilha and not show_back
-		if card_data.is_manilha and card_data.suit == CardData.Suit.PAUS:
-			manilha_glow.modulate = Color(1.0, 0.9, 0.2, 1.0)
-		elif card_data.is_manilha:
-			manilha_glow.modulate = Color(0.3, 1.0, 0.6, 0.95)
+	
+	# Configura parâmetros especiais de Foil / Zap no Shader
+	if card_material != null:
+		card_material.set_shader_parameter("is_manilha", card_data.is_manilha)
+		card_material.set_shader_parameter("is_zap", card_data.is_manilha and card_data.suit == CardData.Suit.PAUS)
+		card_material.set_shader_parameter("foil_intensity", 0.6 if card_data.is_manilha else 0.0)
 
 func animate_flip(reveal: bool, duration: float = 0.3) -> void:
-	is_animating = true
 	var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "scale:x", 0.0, duration / 2.0)
+	tween.tween_property(self, "target_scale:x", 0.0, duration / 2.0)
 	tween.tween_callback(func():
 		if card_data != null:
 			card_data.is_revealed = reveal
@@ -86,13 +166,15 @@ func animate_flip(reveal: bool, duration: float = 0.3) -> void:
 		update_visuals()
 	)
 	var tween_back = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween_back.tween_property(self, "scale:x", 1.0, duration / 2.0).set_delay(duration / 2.0)
-	tween_back.finished.connect(func(): is_animating = false)
+	tween_back.tween_property(self, "target_scale:x", 1.0, duration / 2.0).set_delay(duration / 2.0)
 
-func animate_slam(duration: float = 0.2) -> void:
-	var tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	scale = Vector2(1.25, 1.25)
-	tween.tween_property(self, "scale", Vector2(1.0, 1.0), duration)
+func animate_slam(duration: float = 0.22) -> void:
+	# Impulso de mola (Squash & Stretch Balatro)
+	spring_scale = Vector2(1.35, 1.35)
+	spring_scale_vel = Vector2(-2.0, -2.0)
+	target_scale = Vector2.ONE
+	if shadow_rect != null:
+		shadow_rect.scale = Vector2(1.2, 1.2)
 
 func _get_suit_symbol(suit: CardData.Suit) -> String:
 	match suit:
@@ -112,24 +194,26 @@ func _get_suit_color(suit: CardData.Suit) -> Color:
 			return Color.WHITE
 
 func _on_mouse_entered() -> void:
-	if not is_interactive or card_data == null or is_animating:
+	if not is_interactive or card_data == null:
 		return
 	is_hovered = true
-	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "position:y", -18.0, 0.12)
-	tween.tween_property(self, "scale", Vector2(1.08, 1.08), 0.12)
+	target_pos = Vector2(position.x, -22.0)
+	target_scale = Vector2(1.12, 1.12)
+	target_rot = randf_range(-0.04, 0.04) # Leve balanço tátil
 	card_hovered.emit(card_data)
 
 func _on_mouse_exited() -> void:
-	if not is_interactive or is_animating:
+	if not is_interactive:
 		return
 	is_hovered = false
-	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "position:y", 0.0, 0.12)
-	tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.12)
+	target_pos = Vector2(position.x, 0.0)
+	target_scale = Vector2.ONE
+	target_rot = 0.0
 
 func _on_gui_input(event: InputEvent) -> void:
-	if not is_interactive or card_data == null or is_animating:
+	if not is_interactive or card_data == null:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		# Reação tátil de clique
+		spring_scale = Vector2(0.95, 0.95)
 		card_clicked.emit(card_data)
