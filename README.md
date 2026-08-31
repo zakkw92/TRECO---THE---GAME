@@ -66,4 +66,4 @@ Desenvolvido com ☕ e paixão por Truco!
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+Todos os direitos reservados © 2026 Guilherme. Uso, cópia e distribuição restritos ao autor.
