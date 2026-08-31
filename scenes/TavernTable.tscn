@@ -1,8 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://df7h2k9l4m5n6"]
+[gd_scene load_steps=6 format=3 uid="uid://df7h2k9l4m5n6"]
 
 [ext_resource type="Script" path="res://scripts/ui/TavernTable.gd" id="1_table"]
 [ext_resource type="Script" path="res://scripts/core/MatchManager.gd" id="2_match"]
 [ext_resource type="Script" path="res://scripts/ui/CandleLight.gd" id="3_candle"]
+[ext_resource type="Script" path="res://scripts/ui/ScreenShakeCamera.gd" id="4_camera"]
+[ext_resource type="Shader" path="res://shaders/crt_shader.gdshader" id="5_crt"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+shader = ExtResource("5_crt")
+shader_parameter/scanline_count = 360.0
+shader_parameter/scanline_intensity = 0.12
+shader_parameter/curvature = 0.015
+shader_parameter/vignette_intensity = 0.45
+shader_parameter/vignette_color = Color(0.12, 0.08, 0.05, 1)
 
 [node name="TavernTable" type="Control"]
 layout_mode = 3
@@ -12,6 +22,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_table")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+script = ExtResource("4_camera")
 
 [node name="MatchManager" type="Node" parent="."]
 script = ExtResource("2_match")
@@ -240,6 +254,24 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 8
 
+[node name="BannerLabel" type="Label" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -180.0
+offset_right = 300.0
+offset_bottom = -120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 28
+text = "BATIDA NA MESA: TRUCO!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="TrucoDialog" type="Panel" parent="."]
 visible = false
 layout_mode = 1
@@ -306,3 +338,15 @@ offset_bottom = -20.0
 grow_horizontal = 0
 grow_vertical = 0
 text = "Aumenta!"
+
+[node name="CRTLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="CRTRect" type="ColorRect" parent="CRTLayer"]
+material = SubResource("ShaderMaterial_crt")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
