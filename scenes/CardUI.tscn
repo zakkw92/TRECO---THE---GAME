@@ -6,15 +6,25 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/manilha_border.png" id="4_glow"]
 
 [node name="CardUI" type="Control"]
-custom_minimum_size = Vector2(90, 130)
+custom_minimum_size = Vector2(95, 135)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 90.0
-offset_bottom = 130.0
+offset_right = 95.0
+offset_bottom = 135.0
 mouse_filter = 0
 script = ExtResource("1_cardui")
 
-[node name="CardShadow" type="ColorRect" parent="."]
+[node name="VisualRoot" type="Control" parent="."]
+custom_minimum_size = Vector2(95, 135)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CardShadow" type="ColorRect" parent="VisualRoot"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -26,9 +36,9 @@ offset_bottom = 4.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0, 0, 0, 0.35)
+color = Color(0, 0, 0, 0.4)
 
-[node name="CardFrontTexture" type="TextureRect" parent="."]
+[node name="CardFrontTexture" type="TextureRect" parent="VisualRoot"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -39,7 +49,7 @@ mouse_filter = 2
 texture = ExtResource("2_front")
 expand_mode = 1
 
-[node name="CardBackTexture" type="TextureRect" parent="."]
+[node name="CardBackTexture" type="TextureRect" parent="VisualRoot"]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -51,7 +61,7 @@ mouse_filter = 2
 texture = ExtResource("3_back")
 expand_mode = 1
 
-[node name="ManilhaGlow" type="TextureRect" parent="."]
+[node name="ManilhaGlow" type="TextureRect" parent="VisualRoot"]
 visible = false
 modulate = Color(1, 0.9, 0.3, 1)
 layout_mode = 1
@@ -64,35 +74,37 @@ mouse_filter = 2
 texture = ExtResource("4_glow")
 expand_mode = 1
 
-[node name="TopRankLabel" type="Label" parent="."]
+[node name="TopRankLabel" type="Label" parent="VisualRoot"]
 layout_mode = 1
 offset_left = 8.0
 offset_top = 6.0
 offset_right = 44.0
 offset_bottom = 30.0
-theme_override_colors/font_color = Color(0.12, 0.08, 0.06, 1)
+theme_override_colors/font_color = Color(0.1, 0.06, 0.04, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.8)
+theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 18
 text = "A"
 
-[node name="CenterSuitLabel" type="Label" parent="."]
+[node name="CenterSuitLabel" type="Label" parent="VisualRoot"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = -24.0
-offset_right = 22.0
-offset_bottom = 24.0
+offset_left = -24.0
+offset_top = -26.0
+offset_right = 24.0
+offset_bottom = 26.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 40
 text = "♠"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BottomRankLabel" type="Label" parent="."]
+[node name="BottomRankLabel" type="Label" parent="VisualRoot"]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -105,7 +117,9 @@ offset_right = -8.0
 offset_bottom = -6.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.12, 0.08, 0.06, 1)
+theme_override_colors/font_color = Color(0.1, 0.06, 0.04, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.8)
+theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 18
 text = "A"
 horizontal_alignment = 2

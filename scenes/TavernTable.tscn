@@ -40,11 +40,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.14, 0.1, 0.08, 1)
+color = Color(0.12, 0.08, 0.06, 1)
 
 [node name="CandleLight" type="PointLight2D" parent="."]
 position = Vector2(640, 360)
-color = Color(1, 0.666667, 0.266667, 1)
+color = Color(1, 0.7, 0.3, 1)
 energy = 1.2
 texture_scale = 3.0
 script = ExtResource("3_candle")
@@ -62,10 +62,10 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -500.0
-offset_top = 20.0
-offset_right = -200.0
-offset_bottom = 150.0
+offset_left = -440.0
+offset_top = 18.0
+offset_right = -160.0
+offset_bottom = 148.0
 grow_horizontal = 2
 
 [node name="BardoPortrait" type="Control" parent="TableArea/BardoArea"]
@@ -116,6 +116,7 @@ anchor_bottom = 1.0
 offset_top = -24.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 theme_override_font_sizes/font_size = 12
 text = "Sylas (Bardo)"
 horizontal_alignment = 1
@@ -128,7 +129,7 @@ offset_right = 240.0
 offset_bottom = 33.0
 theme_override_colors/font_color = Color(1, 0.8, 0.4, 1)
 theme_override_font_sizes/font_size = 14
-text = "😏 Sorridente"
+text = "😏 Confiante"
 
 [node name="SpeechBubble" type="Panel" parent="TableArea/BardoArea/BardoPortrait"]
 visible = false
@@ -158,10 +159,10 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -160.0
-offset_top = 20.0
-offset_right = 160.0
-offset_bottom = 150.0
+offset_left = -150.0
+offset_top = 18.0
+offset_right = 180.0
+offset_bottom = 155.0
 grow_horizontal = 2
 theme_override_constants/separation = 20
 alignment = 1
@@ -173,9 +174,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -340.0
+offset_left = -360.0
 offset_top = -110.0
-offset_right = 340.0
+offset_right = 360.0
 offset_bottom = 110.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -190,12 +191,14 @@ offset_top = -100.0
 offset_right = 150.0
 offset_bottom = 100.0
 grow_vertical = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 alignment = 1
 
 [node name="ViraHeaderLabel" type="Label" parent="TableArea/CenterArea/ViraPedestal"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0.02, 1)
+theme_override_constants/outline_size = 3
 theme_override_font_sizes/font_size = 14
 text = "VIRA (TOMBO)"
 horizontal_alignment = 1
@@ -205,8 +208,10 @@ layout_mode = 2
 
 [node name="ManilhaInfoLabel" type="Label" parent="TableArea/CenterArea/ViraPedestal"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 1, 0.6, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.3, 1, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.2, 0.1, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
 text = "Manilha: ..."
 horizontal_alignment = 1
 
@@ -219,8 +224,8 @@ anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = -240.0
 offset_top = -10.0
-offset_right = -150.0
-offset_bottom = 120.0
+offset_right = -140.0
+offset_bottom = 125.0
 grow_horizontal = 0
 grow_vertical = 2
 
@@ -232,8 +237,8 @@ anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = -240.0
-offset_top = -130.0
-offset_right = -150.0
+offset_top = -135.0
+offset_right = -140.0
 offset_bottom = 0.0
 grow_horizontal = 0
 grow_vertical = 2
@@ -245,64 +250,79 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -160.0
-offset_top = -210.0
-offset_right = 160.0
-offset_bottom = -80.0
+offset_left = -180.0
+offset_top = -195.0
+offset_right = 180.0
+offset_bottom = -55.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 alignment = 1
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="ScorePanel" type="Panel" parent="HUD"]
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 360.0
-offset_bottom = 60.0
+[node name="TopLeftHUD" type="VBoxContainer" parent="HUD"]
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 320.0
+offset_bottom = 160.0
+theme_override_constants/separation = 6
 
-[node name="ScoreLabel" type="Label" parent="HUD/ScorePanel"]
+[node name="ScorePanel" type="Panel" parent="HUD/TopLeftHUD"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+
+[node name="ScoreLabel" type="Label" parent="HUD/TopLeftHUD/ScorePanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "Taverneiro: 0  |  Sylas (Bardo): 0"
+theme_override_colors/font_color = Color(1, 0.9, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0.02, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 15
+text = "Taverneiro: 0  |  Sylas: 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BetPanel" type="Panel" parent="HUD"]
-offset_left = 20.0
-offset_top = 70.0
-offset_right = 180.0
-offset_bottom = 110.0
+[node name="StatsRow" type="HBoxContainer" parent="HUD/TopLeftHUD"]
+layout_mode = 2
+theme_override_constants/separation = 8
 
-[node name="BetLabel" type="Label" parent="HUD/BetPanel"]
+[node name="BetPanel" type="Panel" parent="HUD/TopLeftHUD/StatsRow"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BetLabel" type="Label" parent="HUD/TopLeftHUD/StatsRow/BetPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.3, 1)
+theme_override_font_sizes/font_size = 14
 text = "Aposta: 1 Tento"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EnergyPanel" type="Panel" parent="HUD"]
-offset_left = 190.0
-offset_top = 70.0
-offset_right = 360.0
-offset_bottom = 110.0
+[node name="EnergyPanel" type="Panel" parent="HUD/TopLeftHUD/StatsRow"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="EnergyLabel" type="Label" parent="HUD/EnergyPanel"]
+[node name="EnergyLabel" type="Label" parent="HUD/TopLeftHUD/StatsRow/EnergyPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 14
 text = "Energia: 3 ⚡"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -311,10 +331,10 @@ vertical_alignment = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -380.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = 220.0
+offset_left = -360.0
+offset_top = 16.0
+offset_right = -18.0
+offset_bottom = 190.0
 grow_horizontal = 0
 
 [node name="LogText" type="RichTextLabel" parent="HUD/LogPanel"]
@@ -323,60 +343,117 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
-offset_top = 10.0
+offset_top = 8.0
 offset_right = -10.0
-offset_bottom = -10.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_font_sizes/normal_font_size = 12
 scroll_following = true
 
-[node name="ActionButtons" type="HBoxContainer" parent="HUD"]
+[node name="BottomActionButtons" type="HBoxContainer" parent="HUD"]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -300.0
-offset_top = -70.0
-offset_right = -20.0
-offset_bottom = -20.0
+offset_left = -460.0
+offset_top = -65.0
+offset_right = -18.0
+offset_bottom = -15.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 
-[node name="MenuButton" type="Button" parent="HUD/ActionButtons"]
-custom_minimum_size = Vector2(90, 0)
+[node name="TrecoModalButton" type="Button" parent="HUD/BottomActionButtons"]
+custom_minimum_size = Vector2(170, 44)
 layout_mode = 2
-text = "🏠 Menu"
+theme_override_colors/font_color = Color(0.4, 1, 0.7, 1)
+theme_override_font_sizes/font_size = 15
+text = "🧪 Grimório (Trecos)"
 
-[node name="TrucoButton" type="Button" parent="HUD/ActionButtons"]
+[node name="TrucoButton" type="Button" parent="HUD/BottomActionButtons"]
+custom_minimum_size = Vector2(140, 44)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 18
 text = "TRUCO! 🍻"
 
-[node name="TrecoPanel" type="Panel" parent="HUD"]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = -70.0
-offset_right = 600.0
-offset_bottom = -16.0
-grow_vertical = 0
+[node name="MenuButton" type="Button" parent="HUD/BottomActionButtons"]
+custom_minimum_size = Vector2(90, 44)
+layout_mode = 2
+text = "🏠 Menu"
 
-[node name="TrecoList" type="HBoxContainer" parent="HUD/TrecoPanel"]
+[node name="TrecoModal" type="Panel" parent="."]
+visible = false
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 6.0
-offset_right = -10.0
-offset_bottom = -6.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -210.0
+offset_right = 360.0
+offset_bottom = 210.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 8
+
+[node name="TrecoModalTitle" type="Label" parent="TrecoModal"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 16.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 20
+text = "🧪 GRIMÓRIO DE ALQUIMIA (TRECOS)"
+horizontal_alignment = 1
+
+[node name="TrecoModalSubtitle" type="Label" parent="TrecoModal"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 44.0
+offset_bottom = 66.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "3 Trecos sorteados para esta rodada | Limite: Máximo de 1 Treco por rodada"
+horizontal_alignment = 1
+
+[node name="TrecoGridContainer" type="HBoxContainer" parent="TrecoModal"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -330.0
+offset_top = -120.0
+offset_right = 330.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="CloseTrecoModalButton" type="Button" parent="TrecoModal"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -46.0
+offset_right = 90.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Fechar Grimório"
 
 [node name="BannerLabel" type="Label" parent="HUD"]
 visible = false
@@ -385,12 +462,14 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -180.0
-offset_right = 300.0
-offset_bottom = -120.0
+offset_left = -320.0
+offset_top = -170.0
+offset_right = 320.0
+offset_bottom = -110.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 28
 text = "BATIDA NA MESA: TRUCO!"
 horizontal_alignment = 1
@@ -418,6 +497,7 @@ anchor_right = 1.0
 offset_top = 20.0
 offset_bottom = 60.0
 grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 text = "Oponente pediu Truco!"
 horizontal_alignment = 1
 

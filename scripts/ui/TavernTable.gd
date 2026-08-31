@@ -13,13 +13,16 @@ extends Control
 @onready var manilha_info_label: Label = $TableArea/CenterArea/ViraPedestal/ManilhaInfoLabel
 @onready var played_p0_container: CenterContainer = $TableArea/CenterArea/PlayedP0
 @onready var played_p1_container: CenterContainer = $TableArea/CenterArea/PlayedP1
-@onready var score_label: Label = $HUD/ScorePanel/ScoreLabel
-@onready var bet_label: Label = $HUD/BetPanel/BetLabel
-@onready var energy_label: Label = $HUD/EnergyPanel/EnergyLabel
-@onready var truco_button: Button = $HUD/ActionButtons/TrucoButton
-@onready var menu_button: Button = $HUD/ActionButtons/MenuButton
+@onready var score_label: Label = $HUD/TopLeftHUD/ScorePanel/ScoreLabel
+@onready var bet_label: Label = $HUD/TopLeftHUD/StatsRow/BetPanel/BetLabel
+@onready var energy_label: Label = $HUD/TopLeftHUD/StatsRow/EnergyPanel/EnergyLabel
+@onready var truco_button: Button = $HUD/BottomActionButtons/TrucoButton
+@onready var treco_modal_button: Button = $HUD/BottomActionButtons/TrecoModalButton
+@onready var menu_button: Button = $HUD/BottomActionButtons/MenuButton
 @onready var log_box: RichTextLabel = $HUD/LogPanel/LogText
-@onready var treco_container: HBoxContainer = $HUD/TrecoPanel/TrecoList
+@onready var treco_modal: Panel = $TrecoModal
+@onready var treco_grid: HBoxContainer = $TrecoModal/TrecoGridContainer
+@onready var close_treco_button: Button = $TrecoModal/CloseTrecoModalButton
 @onready var truco_dialog: Panel = $TrucoDialog
 @onready var truco_dialog_text: Label = $TrucoDialog/DialogText
 @onready var banner_label: Label = $HUD/BannerLabel
@@ -29,27 +32,38 @@ extends Control
 
 var opponent_ai: OpponentAI
 var card_ui_scene: PackedScene = preload("res://scenes/CardUI.tscn")
-var player_trecos: Array[TrecoEffect] = []
+
+# Catálogo completo e 3 Trecos sorteados da rodada
+var all_trecos_catalogue: Array[TrecoEffect] = []
+var round_trecos: Array[TrecoEffect] = []
 
 func _ready() -> void:
 	opponent_ai = OpponentAI.new(OpponentAI.Personality.AGGRESSIVE_BLUFFER)
-	_setup_player_trecos()
+	_init_catalogue()
 	_connect_signals()
+	treco_modal.visible = false
 	truco_dialog.visible = false
 	game_over_dialog.visible = false
 	banner_label.visible = false
 	match_manager.start_new_match()
 
-func _setup_player_trecos() -> void:
-	player_trecos = [
+func _init_catalogue() -> void:
+	all_trecos_catalogue = [
 		OlhoDeLinceEffect.new(),
 		FumacaDeTavernaEffect.new(),
 		AlquimistaEffect.new(),
 		CaraDePauEffect.new(),
 		CanaDeHidromelEffect.new(),
+		ConfusaoNoBarEffect.new(),
+		MaoLeveEffect.new(),
 		ApostaDobradaEffect.new()
 	]
-	_build_treco_buttons()
+
+func _roll_random_trecos_for_round() -> void:
+	var pool = all_trecos_catalogue.duplicate()
+	pool.shuffle()
+	round_trecos = [pool[0], pool[1], pool[2]]
+	_build_treco_modal_tiles()
 
 func _connect_signals() -> void:
 	match_manager.hand_started.connect(_on_hand_started)
@@ -65,8 +79,19 @@ func _connect_signals() -> void:
 	match_manager.treco_activated.connect(_on_treco_activated)
 	match_manager.turn_changed.connect(_on_turn_changed)
 	match_manager.log_message.connect(_on_log_message)
+	
 	truco_button.pressed.connect(_on_truco_button_pressed)
+	treco_modal_button.pressed.connect(func(): 
+		audio_manager.play_click()
+		_build_treco_modal_tiles()
+		treco_modal.visible = true
+	)
+	close_treco_button.pressed.connect(func():
+		audio_manager.play_click()
+		treco_modal.visible = false
+	)
 	menu_button.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/MainMenu.tscn"))
+	
 	$TrucoDialog/AcceptButton.pressed.connect(func(): 
 		truco_dialog.visible = false
 		match_manager.answer_truco(0, true)
@@ -87,22 +112,74 @@ func _connect_signals() -> void:
 		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 	)
 
-func _build_treco_buttons() -> void:
-	for child in treco_container.get_children():
+func _build_treco_modal_tiles() -> void:
+	for child in treco_grid.get_children():
 		child.queue_free()
-	for treco in player_trecos:
-		var btn = Button.new()
-		btn.text = "%s (%d⚡)" % [treco.item_name, treco.energy_cost]
-		btn.tooltip_text = treco.description
-		btn.pressed.connect(func(): _use_player_treco(treco))
-		treco_container.add_child(btn)
+	
+	var already_used = match_manager.treco_used_this_round[0]
+	var cur_energy = match_manager.player_energy[0]
+	
+	for treco in round_trecos:
+		var card_panel = Panel.new()
+		card_panel.custom_minimum_size = Vector2(200, 230)
+		
+		var vbox = VBoxContainer.new()
+		vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+		vbox.offset_left = 12
+		vbox.offset_top = 12
+		vbox.offset_right = -12
+		vbox.offset_bottom = -12
+		vbox.theme_override_constants.separation = 8
+		
+		var title_lbl = Label.new()
+		title_lbl.text = "🧪 " + treco.item_name
+		title_lbl.set("theme_override_colors/font_color", Color("ffd166"))
+		title_lbl.set("theme_override_font_sizes/font_size", 16)
+		title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(title_lbl)
+		
+		var cost_lbl = Label.new()
+		cost_lbl.text = "Custo: %d ⚡" % treco.energy_cost
+		cost_lbl.set("theme_override_colors/font_color", Color("06d6a0"))
+		cost_lbl.set("theme_override_font_sizes/font_size", 13)
+		cost_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(cost_lbl)
+		
+		var desc_lbl = Label.new()
+		desc_lbl.text = treco.description
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc_lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		desc_lbl.set("theme_override_font_sizes/font_size", 12)
+		vbox.add_child(desc_lbl)
+		
+		var use_btn = Button.new()
+		use_btn.custom_minimum_size = Vector2(0, 36)
+		
+		if already_used:
+			use_btn.text = "Limite de 1/Rodada Usado"
+			use_btn.disabled = true
+		elif cur_energy < treco.energy_cost:
+			use_btn.text = "Sem Energia (%d⚡)" % treco.energy_cost
+			use_btn.disabled = true
+		else:
+			use_btn.text = "✨ Ativar Efeito"
+			use_btn.pressed.connect(func():
+				treco_modal.visible = false
+				_use_player_treco(treco)
+			)
+		
+		vbox.add_child(use_btn)
+		card_panel.add_child(vbox)
+		treco_grid.add_child(card_panel)
 
 func _use_player_treco(treco: TrecoEffect) -> void:
 	if match_manager.use_treco(0, treco):
 		audio_manager.play_potion()
 		_refresh_hands_ui()
+		_build_treco_modal_tiles()
 
 func _on_hand_started(vira: CardData) -> void:
+	_roll_random_trecos_for_round()
 	_refresh_hands_ui()
 	_display_vira(vira)
 	_clear_played_cards()
@@ -115,7 +192,7 @@ func _display_vira(vira: CardData) -> void:
 	vira.is_revealed = true
 	var card_node: CardUI = card_ui_scene.instantiate()
 	vira_container.add_child(card_node)
-	card_node.setup(vira, false, false) # Sempre virada para cima!
+	card_node.setup(vira, false, false)
 	card_node.animate_slam(0.25)
 	
 	var manilha_val = TrucoRules.get_manilha_rank_for_vira(vira.rank_value)
@@ -136,7 +213,6 @@ func _refresh_hands_ui() -> void:
 	for card in match_manager.player_hands[1]:
 		var card_node: CardUI = card_ui_scene.instantiate()
 		p1_hand_container.add_child(card_node)
-		# Cartas do oponente ficam ocultas a menos que estejam reveladas (Olho de Lince)
 		card_node.setup(card, false, not card.is_revealed)
 
 func _on_player_card_clicked(card: CardData) -> void:
@@ -177,7 +253,6 @@ func _on_card_played(player_id: int, card: CardData) -> void:
 		c.queue_free()
 	var card_node: CardUI = card_ui_scene.instantiate()
 	target_container.add_child(card_node)
-	# Cartas jogadas na mesa são mostradas viradas para cima (a menos que Cara de Pau)
 	card_node.setup(card, false, card.is_face_down)
 	card_node.animate_slam(0.2)
 	
@@ -227,7 +302,7 @@ func _on_match_ended(winner: int) -> void:
 		game_over_desc.text = "Sylas usou seus melhores blefes e venceu a partida. Placar final: %d x %d" % [match_manager.score[0], match_manager.score[1]]
 
 func _on_score_updated(p0_s: int, p1_s: int) -> void:
-	score_label.text = "Taverneiro: %d  |  Sylas (Bardo): %d" % [p0_s, p1_s]
+	score_label.text = "Taverneiro: %d  |  Sylas: %d" % [p0_s, p1_s]
 
 func _on_bet_updated(bet: int) -> void:
 	bet_label.text = "Aposta: %d Tento(s)" % bet
@@ -262,6 +337,7 @@ func _on_treco_activated(player_id: int, treco_name: String) -> void:
 	camera.add_trauma(0.25)
 	if player_id == 1:
 		bardo_portrait.on_treco_used()
+	_build_treco_modal_tiles()
 
 func _on_truco_button_pressed() -> void:
 	match_manager.call_truco(0)
