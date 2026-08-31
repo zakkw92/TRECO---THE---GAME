@@ -1,0 +1,308 @@
+[gd_scene load_steps=4 format=3 uid="uid://df7h2k9l4m5n6"]
+
+[ext_resource type="Script" path="res://scripts/ui/TavernTable.gd" id="1_table"]
+[ext_resource type="Script" path="res://scripts/core/MatchManager.gd" id="2_match"]
+[ext_resource type="Script" path="res://scripts/ui/CandleLight.gd" id="3_candle"]
+
+[node name="TavernTable" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_table")
+
+[node name="MatchManager" type="Node" parent="."]
+script = ExtResource("2_match")
+
+[node name="TableBackground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.14, 0.1, 0.08, 1)
+
+[node name="CandleLight" type="PointLight2D" parent="."]
+position = Vector2(640, 360)
+color = Color(1, 0.666667, 0.266667, 1)
+energy = 1.2
+texture_scale = 3.0
+script = ExtResource("3_candle")
+
+[node name="TableArea" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="P1HandContainer" type="HBoxContainer" parent="TableArea"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 20.0
+offset_right = 160.0
+offset_bottom = 150.0
+grow_horizontal = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="CenterArea" type="Control" parent="TableArea"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -100.0
+offset_right = 300.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ViraContainer" type="CenterContainer" parent="TableArea/CenterArea"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 40.0
+offset_top = -65.0
+offset_right = 130.0
+offset_bottom = 65.0
+grow_vertical = 2
+
+[node name="PlayedP0" type="CenterContainer" parent="TableArea/CenterArea"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -10.0
+offset_right = -130.0
+offset_bottom = 120.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="PlayedP1" type="CenterContainer" parent="TableArea/CenterArea"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -130.0
+offset_right = -130.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="P0HandContainer" type="HBoxContainer" parent="TableArea"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -160.0
+offset_right = 160.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="ScorePanel" type="Panel" parent="HUD"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 360.0
+offset_bottom = 60.0
+
+[node name="ScoreLabel" type="Label" parent="HUD/ScorePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Taverneiro (P0): 0  |  Oponente (P1): 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BetPanel" type="Panel" parent="HUD"]
+offset_left = 20.0
+offset_top = 70.0
+offset_right = 180.0
+offset_bottom = 110.0
+
+[node name="BetLabel" type="Label" parent="HUD/BetPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Aposta: 1 Tento"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnergyPanel" type="Panel" parent="HUD"]
+offset_left = 190.0
+offset_top = 70.0
+offset_right = 360.0
+offset_bottom = 110.0
+
+[node name="EnergyLabel" type="Label" parent="HUD/EnergyPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Energia: 3 ⚡"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LogPanel" type="Panel" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -380.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 220.0
+grow_horizontal = 0
+
+[node name="LogText" type="RichTextLabel" parent="HUD/LogPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+scroll_following = true
+
+[node name="ActionButtons" type="HBoxContainer" parent="HUD"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -70.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="TrucoButton" type="Button" parent="HUD/ActionButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "TRUCO! 🍻"
+
+[node name="TrecoPanel" type="Panel" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -80.0
+offset_right = 440.0
+offset_bottom = -20.0
+grow_vertical = 0
+
+[node name="TrecoList" type="HBoxContainer" parent="HUD/TrecoPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="TrucoDialog" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DialogText" type="Label" parent="TrucoDialog"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 20.0
+offset_bottom = 60.0
+grow_horizontal = 2
+text = "Oponente pediu Truco!"
+horizontal_alignment = 1
+
+[node name="AcceptButton" type="Button" parent="TrucoDialog"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -60.0
+offset_right = 120.0
+offset_bottom = -20.0
+grow_vertical = 0
+text = "Cai! (Aceitar)"
+
+[node name="RefuseButton" type="Button" parent="TrucoDialog"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -50.0
+offset_top = -60.0
+offset_right = 50.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Corre! (Fugir)"
+
+[node name="RaiseButton" type="Button" parent="TrucoDialog"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -60.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Aumenta!"
