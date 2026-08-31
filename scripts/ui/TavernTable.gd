@@ -116,7 +116,7 @@ func _build_treco_modal_tiles() -> void:
 	for child in treco_grid.get_children():
 		child.queue_free()
 	
-	var already_used = match_manager.treco_used_this_round[0]
+	var already_used = match_manager.treco_used_this_hand[0]
 	var cur_energy = match_manager.player_energy[0]
 	
 	for treco in round_trecos:
