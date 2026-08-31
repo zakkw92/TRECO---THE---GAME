@@ -10,19 +10,22 @@ var is_hovered: bool = false
 var is_interactive: bool = true
 var is_animating: bool = false
 
-@onready var front_texture: TextureRect = $CardFrontTexture
-@onready var back_texture: TextureRect = $CardBackTexture
-@onready var rank_label: Label = $RankLabel
-@onready var suit_label: Label = $SuitLabel
-@onready var manilha_glow: TextureRect = $ManilhaGlow
+@onready var front_texture: TextureRect = get_node_or_null("CardFrontTexture")
+@onready var back_texture: TextureRect = get_node_or_null("CardBackTexture")
+@onready var rank_label: Label = get_node_or_null("RankLabel")
+@onready var suit_label: Label = get_node_or_null("SuitLabel")
+@onready var manilha_glow: TextureRect = get_node_or_null("ManilhaGlow")
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(90, 130)
 	size = Vector2(90, 130)
 	pivot_offset = size / 2.0
-	mouse_entered.connect(_on_mouse_entered)
-	mouse_exited.connect(_on_mouse_exited)
-	gui_input.connect(_on_gui_input)
+	if not mouse_entered.is_connected(_on_mouse_entered):
+		mouse_entered.connect(_on_mouse_entered)
+	if not mouse_exited.is_connected(_on_mouse_exited):
+		mouse_exited.connect(_on_mouse_exited)
+	if not gui_input.is_connected(_on_gui_input):
+		gui_input.connect(_on_gui_input)
 	update_visuals()
 
 func setup(p_card_data: CardData, p_interactive: bool = true) -> void:
@@ -35,6 +38,9 @@ func update_visuals() -> void:
 		visible = false
 		return
 	visible = true
+	
+	if not is_node_ready():
+		return
 	
 	var show_back = card_data.is_face_down or (not card_data.is_revealed and not is_interactive)
 	if back_texture != null:
@@ -88,9 +94,9 @@ func _get_suit_symbol(suit: CardData.Suit) -> String:
 func _get_suit_color(suit: CardData.Suit) -> Color:
 	match suit:
 		CardData.Suit.OUROS, CardData.Suit.COPAS:
-			return Color("c1121f") # Vermelho
+			return Color("c1121f")
 		CardData.Suit.ESPADAS, CardData.Suit.PAUS:
-			return Color("101010") # Preto
+			return Color("101010")
 		_:
 			return Color.WHITE
 
