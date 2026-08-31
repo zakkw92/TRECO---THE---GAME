@@ -8,7 +8,9 @@ extends Control
 @onready var bardo_portrait: BardoPortrait = $TableArea/BardoArea/BardoPortrait
 @onready var p0_hand_container: HBoxContainer = $TableArea/P0HandContainer
 @onready var p1_hand_container: HBoxContainer = $TableArea/P1HandContainer
-@onready var vira_container: CenterContainer = $TableArea/CenterArea/ViraContainer
+@onready var vira_container: CenterContainer = $TableArea/CenterArea/ViraPedestal/ViraContainer
+@onready var vira_label: Label = $TableArea/CenterArea/ViraPedestal/ViraHeaderLabel
+@onready var manilha_info_label: Label = $TableArea/CenterArea/ViraPedestal/ManilhaInfoLabel
 @onready var played_p0_container: CenterContainer = $TableArea/CenterArea/PlayedP0
 @onready var played_p1_container: CenterContainer = $TableArea/CenterArea/PlayedP1
 @onready var score_label: Label = $HUD/ScorePanel/ScoreLabel
@@ -110,10 +112,15 @@ func _on_hand_started(vira: CardData) -> void:
 func _display_vira(vira: CardData) -> void:
 	for c in vira_container.get_children():
 		c.queue_free()
+	vira.is_revealed = true
 	var card_node: CardUI = card_ui_scene.instantiate()
 	vira_container.add_child(card_node)
-	card_node.setup(vira, false)
+	card_node.setup(vira, false, false) # Sempre virada para cima!
 	card_node.animate_slam(0.25)
+	
+	var manilha_val = TrucoRules.get_manilha_rank_for_vira(vira.rank_value)
+	var dummy_card = CardData.new(CardData.Suit.PAUS, manilha_val)
+	manilha_info_label.text = "Manilha: %s" % dummy_card.get_rank_name()
 
 func _refresh_hands_ui() -> void:
 	for c in p0_hand_container.get_children():
@@ -121,7 +128,7 @@ func _refresh_hands_ui() -> void:
 	for card in match_manager.player_hands[0]:
 		var card_node: CardUI = card_ui_scene.instantiate()
 		p0_hand_container.add_child(card_node)
-		card_node.setup(card, true)
+		card_node.setup(card, true, false)
 		card_node.card_clicked.connect(func(c_data): _on_player_card_clicked(c_data))
 
 	for c in p1_hand_container.get_children():
@@ -129,7 +136,8 @@ func _refresh_hands_ui() -> void:
 	for card in match_manager.player_hands[1]:
 		var card_node: CardUI = card_ui_scene.instantiate()
 		p1_hand_container.add_child(card_node)
-		card_node.setup(card, false)
+		# Cartas do oponente ficam ocultas a menos que estejam reveladas (Olho de Lince)
+		card_node.setup(card, false, not card.is_revealed)
 
 func _on_player_card_clicked(card: CardData) -> void:
 	if match_manager.current_turn != 0:
@@ -169,7 +177,8 @@ func _on_card_played(player_id: int, card: CardData) -> void:
 		c.queue_free()
 	var card_node: CardUI = card_ui_scene.instantiate()
 	target_container.add_child(card_node)
-	card_node.setup(card, false)
+	# Cartas jogadas na mesa são mostradas viradas para cima (a menos que Cara de Pau)
+	card_node.setup(card, false, card.is_face_down)
 	card_node.animate_slam(0.2)
 	
 	if card.is_manilha:

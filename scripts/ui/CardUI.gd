@@ -8,6 +8,7 @@ signal card_hovered(card_data: CardData)
 
 var is_hovered: bool = false
 var is_interactive: bool = true
+var is_face_down_override: bool = false
 var is_animating: bool = false
 
 @onready var front_texture: TextureRect = get_node_or_null("CardFrontTexture")
@@ -29,9 +30,10 @@ func _ready() -> void:
 		gui_input.connect(_on_gui_input)
 	update_visuals()
 
-func setup(p_card_data: CardData, p_interactive: bool = true) -> void:
+func setup(p_card_data: CardData, p_interactive: bool = true, p_force_face_down: bool = false) -> void:
 	card_data = p_card_data
 	is_interactive = p_interactive
+	is_face_down_override = p_force_face_down
 	update_visuals()
 
 func update_visuals() -> void:
@@ -43,7 +45,10 @@ func update_visuals() -> void:
 	if not is_node_ready():
 		return
 	
-	var show_back = card_data.is_face_down or (not card_data.is_revealed and not is_interactive)
+	var show_back = is_face_down_override or card_data.is_face_down
+	if card_data.is_revealed:
+		show_back = false
+	
 	if back_texture != null:
 		back_texture.visible = show_back
 	if front_texture != null:
@@ -65,9 +70,9 @@ func update_visuals() -> void:
 	if manilha_glow != null:
 		manilha_glow.visible = card_data.is_manilha and not show_back
 		if card_data.is_manilha and card_data.suit == CardData.Suit.PAUS:
-			manilha_glow.modulate = Color(1.0, 0.9, 0.2, 1.0) # Zap: Dourado vivo
+			manilha_glow.modulate = Color(1.0, 0.9, 0.2, 1.0)
 		elif card_data.is_manilha:
-			manilha_glow.modulate = Color(0.3, 1.0, 0.6, 0.95) # Outras: Esmeralda
+			manilha_glow.modulate = Color(0.3, 1.0, 0.6, 0.95)
 
 func animate_flip(reveal: bool, duration: float = 0.3) -> void:
 	is_animating = true
@@ -77,6 +82,7 @@ func animate_flip(reveal: bool, duration: float = 0.3) -> void:
 		if card_data != null:
 			card_data.is_revealed = reveal
 			card_data.is_face_down = not reveal
+		is_face_down_override = not reveal
 		update_visuals()
 	)
 	var tween_back = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
