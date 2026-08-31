@@ -129,7 +129,7 @@ func _build_treco_modal_tiles() -> void:
 		vbox.offset_top = 12
 		vbox.offset_right = -12
 		vbox.offset_bottom = -12
-		vbox.theme_override_constants.separation = 8
+		vbox.add_theme_constant_override("separation", 8)
 		
 		var title_lbl = Label.new()
 		title_lbl.text = "🧪 " + treco.item_name
