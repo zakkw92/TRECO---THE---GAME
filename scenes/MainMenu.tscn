@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://b6j8k3m1n9p4q"]
+[gd_scene format=3 uid="uid://b6j8k3m1oap4q"]
 
 [ext_resource type="Script" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
 [ext_resource type="Shader" path="res://shaders/crt_shader.gdshader" id="2_crt"]

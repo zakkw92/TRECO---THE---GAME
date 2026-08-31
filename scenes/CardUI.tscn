@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://cx8w5h4y8v1m2"]
+[gd_scene load_steps=5 format=3 uid="uid://cx8w5h4y8v1m2"]
 
 [ext_resource type="Script" path="res://scripts/ui/CardUI.gd" id="1_cardui"]
+[ext_resource type="Texture2D" path="res://assets/sprites/card_front.png" id="2_front"]
+[ext_resource type="Texture2D" path="res://assets/sprites/card_back.png" id="3_back"]
+[ext_resource type="Texture2D" path="res://assets/sprites/manilha_border.png" id="4_glow"]
 
 [node name="CardUI" type="Control"]
 custom_minimum_size = Vector2(90, 130)
@@ -11,7 +14,7 @@ offset_bottom = 130.0
 mouse_filter = 0
 script = ExtResource("1_cardui")
 
-[node name="BackgroundPanel" type="Panel" parent="."]
+[node name="CardFrontTexture" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,10 +22,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("2_front")
+expand_mode = 1
 
-[node name="ManilhaGlow" type="Panel" parent="."]
+[node name="CardBackTexture" type="TextureRect" parent="."]
 visible = false
-modulate = Color(1, 0.85, 0.2, 0.8)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -30,14 +34,30 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+texture = ExtResource("3_back")
+expand_mode = 1
+
+[node name="ManilhaGlow" type="TextureRect" parent="."]
+visible = false
+modulate = Color(1, 0.9, 0.3, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_glow")
+expand_mode = 1
 
 [node name="RankLabel" type="Label" parent="."]
 layout_mode = 1
-offset_left = 6.0
-offset_top = 4.0
-offset_right = 46.0
-offset_bottom = 27.0
-theme_override_font_sizes/font_size = 18
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 50.0
+offset_bottom = 31.0
+theme_override_colors/font_color = Color(0.15, 0.1, 0.08, 1)
+theme_override_font_sizes/font_size = 20
 text = "A"
 
 [node name="SuitLabel" type="Label" parent="."]
@@ -53,18 +73,7 @@ offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 36
 text = "♠"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="CardBack" type="Panel" parent="."]
-visible = false
-modulate = Color(0.2, 0.15, 0.3, 1)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2

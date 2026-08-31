@@ -9,13 +9,12 @@ signal card_hovered(card_data: CardData)
 var is_hovered: bool = false
 var is_interactive: bool = true
 var is_animating: bool = false
-var base_position: Vector2 = Vector2.ZERO
 
-@onready var background_panel: Panel = $BackgroundPanel
+@onready var front_texture: TextureRect = $CardFrontTexture
+@onready var back_texture: TextureRect = $CardBackTexture
 @onready var rank_label: Label = $RankLabel
 @onready var suit_label: Label = $SuitLabel
-@onready var manilha_glow: Panel = $ManilhaGlow
-@onready var card_back: Panel = $CardBack
+@onready var manilha_glow: TextureRect = $ManilhaGlow
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(90, 130)
@@ -38,8 +37,10 @@ func update_visuals() -> void:
 	visible = true
 	
 	var show_back = card_data.is_face_down or (not card_data.is_revealed and not is_interactive)
-	if card_back != null:
-		card_back.visible = show_back
+	if back_texture != null:
+		back_texture.visible = show_back
+	if front_texture != null:
+		front_texture.visible = not show_back
 	
 	if rank_label != null:
 		rank_label.text = card_data.get_rank_name()
@@ -53,12 +54,10 @@ func update_visuals() -> void:
 	if manilha_glow != null:
 		manilha_glow.visible = card_data.is_manilha and not show_back
 		if card_data.is_manilha and card_data.suit == CardData.Suit.PAUS:
-			# Zap brilha em dourado néon pulsante
-			manilha_glow.modulate = Color(1.0, 0.9, 0.2, 0.9)
+			manilha_glow.modulate = Color(1.0, 0.9, 0.2, 1.0)
 		elif card_data.is_manilha:
-			manilha_glow.modulate = Color(0.2, 1.0, 0.5, 0.7)
+			manilha_glow.modulate = Color(0.2, 1.0, 0.6, 0.9)
 
-# Animação de virar a carta (Flip 2.5D)
 func animate_flip(reveal: bool, duration: float = 0.3) -> void:
 	is_animating = true
 	var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -73,20 +72,9 @@ func animate_flip(reveal: bool, duration: float = 0.3) -> void:
 	tween_back.tween_property(self, "scale:x", 1.0, duration / 2.0).set_delay(duration / 2.0)
 	tween_back.finished.connect(func(): is_animating = false)
 
-# Animação de deslizar até uma posição alvo na mesa
-func animate_slide_to(target_global_pos: Vector2, target_rotation: float = 0.0, duration: float = 0.35) -> void:
-	is_animating = true
-	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "global_position", target_global_pos, duration)
-	tween.tween_property(self, "rotation", target_rotation, duration)
-	tween.tween_property(self, "scale", Vector2(1.05, 1.05), duration * 0.5)
-	tween.chain().tween_property(self, "scale", Vector2(1.0, 1.0), duration * 0.5)
-	tween.finished.connect(func(): is_animating = false)
-
-# Animação de impacto/sucesso
 func animate_slam(duration: float = 0.2) -> void:
 	var tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	scale = Vector2(1.3, 1.3)
+	scale = Vector2(1.25, 1.25)
 	tween.tween_property(self, "scale", Vector2(1.0, 1.0), duration)
 
 func _get_suit_symbol(suit: CardData.Suit) -> String:
@@ -100,9 +88,9 @@ func _get_suit_symbol(suit: CardData.Suit) -> String:
 func _get_suit_color(suit: CardData.Suit) -> Color:
 	match suit:
 		CardData.Suit.OUROS, CardData.Suit.COPAS:
-			return Color("e63946") # Vermelho vibrante
+			return Color("c1121f") # Vermelho
 		CardData.Suit.ESPADAS, CardData.Suit.PAUS:
-			return Color("1d2d44") # Azul escuro/preto de baralho
+			return Color("101010") # Preto
 		_:
 			return Color.WHITE
 

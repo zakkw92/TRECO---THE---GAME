@@ -46,18 +46,18 @@ TrecoGame/
 │   ├── TavernTable.tscn     # Cena principal da mesa e iluminação
 │   └── CardUI.tscn          # Componente visual interativo de carta
 └── scripts/
-    ├── core/
-    │   ├── CardData.gd       # Modelo de dados da carta
-    │   ├── Deck.gd           # Baralho e embaralhamento
-    │   ├── TrucoRules.gd     # Regras de manilhas, empates e apostas
-    │   └── MatchManager.gd   # Gerenciador de estado e fluxo da partida
-    ├── ai/
-    │   └── OpponentAI.gd     # IA do oponente e lógica de blefe
-    ├── effects/              # Catálogo de efeitos e itens alquímicos (Trecos)
-    └── ui/
-        ├── TavernTable.gd    # Controlador da interface gráfica da mesa
-        ├── CardUI.gd         # Controlador visual e animações de carta
-        └── CandleLight.gd    # Efeito de iluminação dinâmica da vela
+	├── core/
+	│   ├── CardData.gd       # Modelo de dados da carta
+	│   ├── Deck.gd           # Baralho e embaralhamento
+	│   ├── TrucoRules.gd     # Regras de manilhas, empates e apostas
+	│   └── MatchManager.gd   # Gerenciador de estado e fluxo da partida
+	├── ai/
+	│   └── OpponentAI.gd     # IA do oponente e lógica de blefe
+	├── effects/              # Catálogo de efeitos e itens alquímicos (Trecos)
+	└── ui/
+		├── TavernTable.gd    # Controlador da interface gráfica da mesa
+		├── CardUI.gd         # Controlador visual e animações de carta
+		└── CandleLight.gd    # Efeito de iluminação dinâmica da vela
 ```
 
 ---
