@@ -1,0 +1,172 @@
+[gd_scene load_steps=5 format=3 uid="uid://b6j8k3m1n9p4q"]
+
+[ext_resource type="Script" path="res://scripts/ui/MainMenu.gd" id="1_menu"]
+[ext_resource type="Shader" path="res://shaders/crt_shader.gdshader" id="2_crt"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+shader = ExtResource("2_crt")
+shader_parameter/scanline_count = 360.0
+shader_parameter/scanline_intensity = 0.12
+shader_parameter/curvature = 0.015
+shader_parameter/vignette_intensity = 0.45
+shader_parameter/vignette_color = Color(0.12, 0.08, 0.05, 1)
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.07, 0.06, 1)
+
+[node name="TitleContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 80.0
+offset_right = 300.0
+offset_bottom = 220.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="MainTitle" type="Label" parent="TitleContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 56
+text = "TRECO"
+horizontal_alignment = 1
+
+[node name="SubTitle" type="Label" parent="TitleContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.75, 0.7, 1)
+theme_override_font_sizes/font_size = 22
+text = "— Truco da Taverna —"
+horizontal_alignment = 1
+
+[node name="MenuContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -20.0
+offset_right = 160.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="PlayButton" type="Button" parent="MenuContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "🍻 Entrar na Taverna (Jogar)"
+
+[node name="RulesButton" type="Button" parent="MenuContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "📜 Regras do Treco"
+
+[node name="CRTToggle" type="CheckButton" parent="MenuContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Filtro Retrô CRT (Scanlines)"
+
+[node name="QuitButton" type="Button" parent="MenuContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Sair do Jogo"
+
+[node name="RulesDialog" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -220.0
+offset_right = 360.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RulesTitle" type="Label" parent="RulesDialog"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 16.0
+offset_bottom = 48.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 20
+text = "COMO JOGAR TRECO (GDD v2.1)"
+horizontal_alignment = 1
+
+[node name="RulesContent" type="RichTextLabel" parent="RulesDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 60.0
+offset_right = -24.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "[b]1. Truco Paulista Tradicional:[/b]
+- Baralho de 40 cartas (4 a 3). O Vira define a Manilha da rodada.
+- Manilhas: Zap (♣ Paus) > Copas (♥) > Espadilha (♠) > Pica-fumo (♦).
+- Disputa em melhor de 3 vazas. Vence quem fizer 12 tentos primeiro.
+
+[b]2. Sistema de Energia & Trecos Alquímicos:[/b]
+- Cada jogador recebe 3⚡ de Energia de Taverna por rodada.
+- [b]Limite rígido:[/b] Máximo de 1 Treco ativado por rodada por jogador!
+- Trecos incluem: Olho de Lince (revelar carta), Fumaça de Taverna (proteger manilha), O Alquimista (transmutar para Zap), Cara de Pau (carta virada) e mais!
+
+[b]3. Apostas:[/b]
+- 1 Tento -> TRUCO (3) -> SEIS (6) -> NOVE (9) -> DOZE (12)."
+
+[node name="CloseRulesButton" type="Button" parent="RulesDialog"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -80.0
+offset_top = -48.0
+offset_right = 80.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Entendido!"
+
+[node name="CRTLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="CRTRect" type="ColorRect" parent="CRTLayer"]
+material = SubResource("ShaderMaterial_crt")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

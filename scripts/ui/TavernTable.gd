@@ -4,6 +4,8 @@ extends Control
 @onready var match_manager: MatchManager = $MatchManager
 @onready var camera: ScreenShakeCamera = $Camera2D
 @onready var crt_layer: CanvasLayer = $CRTLayer
+@onready var audio_manager: AudioManager = $AudioManager
+@onready var bardo_portrait: BardoPortrait = $TableArea/BardoArea/BardoPortrait
 @onready var p0_hand_container: HBoxContainer = $TableArea/P0HandContainer
 @onready var p1_hand_container: HBoxContainer = $TableArea/P1HandContainer
 @onready var vira_container: CenterContainer = $TableArea/CenterArea/ViraContainer
@@ -13,21 +15,26 @@ extends Control
 @onready var bet_label: Label = $HUD/BetPanel/BetLabel
 @onready var energy_label: Label = $HUD/EnergyPanel/EnergyLabel
 @onready var truco_button: Button = $HUD/ActionButtons/TrucoButton
+@onready var menu_button: Button = $HUD/ActionButtons/MenuButton
 @onready var log_box: RichTextLabel = $HUD/LogPanel/LogText
 @onready var treco_container: HBoxContainer = $HUD/TrecoPanel/TrecoList
 @onready var truco_dialog: Panel = $TrucoDialog
 @onready var truco_dialog_text: Label = $TrucoDialog/DialogText
 @onready var banner_label: Label = $HUD/BannerLabel
+@onready var game_over_dialog: Panel = $GameOverDialog
+@onready var game_over_title: Label = $GameOverDialog/GameOverTitle
+@onready var game_over_desc: Label = $GameOverDialog/GameOverDesc
 
 var opponent_ai: OpponentAI
 var card_ui_scene: PackedScene = preload("res://scenes/CardUI.tscn")
 var player_trecos: Array[TrecoEffect] = []
 
 func _ready() -> void:
-	opponent_ai = OpponentAI.new(OpponentAI.Personality.BALANCED)
+	opponent_ai = OpponentAI.new(OpponentAI.Personality.AGGRESSIVE_BLUFFER)
 	_setup_player_trecos()
 	_connect_signals()
 	truco_dialog.visible = false
+	game_over_dialog.visible = false
 	banner_label.visible = false
 	match_manager.start_new_match()
 
@@ -47,17 +54,36 @@ func _connect_signals() -> void:
 	match_manager.card_played.connect(_on_card_played)
 	match_manager.trick_resolved.connect(_on_trick_resolved)
 	match_manager.hand_ended.connect(_on_hand_ended)
+	match_manager.match_ended.connect(_on_match_ended)
 	match_manager.score_updated.connect(_on_score_updated)
 	match_manager.bet_updated.connect(_on_bet_updated)
 	match_manager.energy_updated.connect(_on_energy_updated)
 	match_manager.truco_called.connect(_on_truco_called)
+	match_manager.truco_answered.connect(_on_truco_answered)
 	match_manager.treco_activated.connect(_on_treco_activated)
 	match_manager.turn_changed.connect(_on_turn_changed)
 	match_manager.log_message.connect(_on_log_message)
 	truco_button.pressed.connect(_on_truco_button_pressed)
-	$TrucoDialog/AcceptButton.pressed.connect(func(): match_manager.answer_truco(0, true))
-	$TrucoDialog/RefuseButton.pressed.connect(func(): match_manager.answer_truco(0, false))
-	$TrucoDialog/RaiseButton.pressed.connect(func(): match_manager.answer_truco(0, true, true))
+	menu_button.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/MainMenu.tscn"))
+	$TrucoDialog/AcceptButton.pressed.connect(func(): 
+		truco_dialog.visible = false
+		match_manager.answer_truco(0, true)
+	)
+	$TrucoDialog/RefuseButton.pressed.connect(func(): 
+		truco_dialog.visible = false
+		match_manager.answer_truco(0, false)
+	)
+	$TrucoDialog/RaiseButton.pressed.connect(func(): 
+		truco_dialog.visible = false
+		match_manager.answer_truco(0, true, true)
+	)
+	$GameOverDialog/RestartButton.pressed.connect(func():
+		game_over_dialog.visible = false
+		match_manager.start_new_match()
+	)
+	$GameOverDialog/MenuReturnButton.pressed.connect(func():
+		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+	)
 
 func _build_treco_buttons() -> void:
 	for child in treco_container.get_children():
@@ -71,12 +97,14 @@ func _build_treco_buttons() -> void:
 
 func _use_player_treco(treco: TrecoEffect) -> void:
 	if match_manager.use_treco(0, treco):
+		audio_manager.play_potion()
 		_refresh_hands_ui()
 
 func _on_hand_started(vira: CardData) -> void:
 	_refresh_hands_ui()
 	_display_vira(vira)
 	_clear_played_cards()
+	audio_manager.play_card_slide()
 	_show_banner("NOVA MÃO! Vira: %s" % vira.to_string_short(), Color("ffaa44"), 1.8)
 
 func _display_vira(vira: CardData) -> void:
@@ -106,6 +134,7 @@ func _refresh_hands_ui() -> void:
 func _on_player_card_clicked(card: CardData) -> void:
 	if match_manager.current_turn != 0:
 		return
+	audio_manager.play_card_slide()
 	match_manager.play_card(0, card)
 	_refresh_hands_ui()
 
@@ -130,6 +159,7 @@ func _trigger_ai_turn() -> void:
 	
 	var card_to_play = opponent_ai.choose_card_to_play(match_manager)
 	if card_to_play != null:
+		audio_manager.play_card_slide()
 		match_manager.play_card(1, card_to_play)
 		_refresh_hands_ui()
 
@@ -142,7 +172,6 @@ func _on_card_played(player_id: int, card: CardData) -> void:
 	card_node.setup(card, false)
 	card_node.animate_slam(0.2)
 	
-	# Leve tremor de mesa ao jogar carta forte
 	if card.is_manilha:
 		camera.add_trauma(0.35)
 
@@ -152,8 +181,10 @@ func _on_trick_resolved(winner: int, is_draw: bool, _idx: int) -> void:
 		camera.add_trauma(0.3)
 	elif winner == 0:
 		_show_banner("VOCÊ FEZ A VAZA!", Color("48cae4"), 1.2)
+		bardo_portrait.on_trick_lost()
 	else:
-		_show_banner("OPONENTE FEZ A VAZA!", Color("f77f00"), 1.2)
+		_show_banner("O BARDO FEZ A VAZA!", Color("f77f00"), 1.2)
+		bardo_portrait.on_trick_won()
 	
 	await get_tree().create_timer(1.2).timeout
 	_clear_played_cards()
@@ -167,14 +198,27 @@ func _on_hand_ended(winner: int, points: int) -> void:
 		_show_banner("MÃO GANHA! +%d PONTO(S)" % points, Color("06d6a0"), 1.8)
 		camera.add_trauma(0.4)
 	elif winner == 1:
-		_show_banner("OPONENTE LEVOU A MÃO! (%d PONTOS)" % points, Color("ef476f"), 1.8)
+		_show_banner("O BARDO LEVOU A MÃO! (%d PONTOS)" % points, Color("ef476f"), 1.8)
 		camera.add_trauma(0.4)
 	
 	await get_tree().create_timer(1.8).timeout
-	match_manager.start_new_hand()
+	if match_manager.score[0] < 12 and match_manager.score[1] < 12:
+		match_manager.start_new_hand()
+
+func _on_match_ended(winner: int) -> void:
+	audio_manager.play_victory()
+	game_over_dialog.visible = true
+	if winner == 0:
+		game_over_title.text = "🏆 VITÓRIA DA TAVERNA!"
+		game_over_title.modulate = Color("06d6a0")
+		game_over_desc.text = "Você derrotou Sylas, o Bardo Trapaceiro, e defendeu a honra da taverna! Placar final: %d x %d" % [match_manager.score[0], match_manager.score[1]]
+	else:
+		game_over_title.text = "💀 O BARDO LEVOU SEU OURO!"
+		game_over_title.modulate = Color("ef476f")
+		game_over_desc.text = "Sylas usou seus melhores blefes e venceu a partida. Placar final: %d x %d" % [match_manager.score[0], match_manager.score[1]]
 
 func _on_score_updated(p0_s: int, p1_s: int) -> void:
-	score_label.text = "Taverneiro (P0): %d  |  Oponente (P1): %d" % [p0_s, p1_s]
+	score_label.text = "Taverneiro: %d  |  Sylas (Bardo): %d" % [p0_s, p1_s]
 
 func _on_bet_updated(bet: int) -> void:
 	bet_label.text = "Aposta: %d Tento(s)" % bet
@@ -186,21 +230,29 @@ func _on_truco_called(caller_id: int, bet_level: int) -> void:
 	var call_title = "TRUCO!" if bet_level == 3 else ("SEIS!" if bet_level == 6 else ("NOVE!" if bet_level == 9 else "DOZE!"))
 	_show_banner("BATIDA NA MESA: " + call_title, Color("e63946"), 1.5)
 	
-	# Forte Screen Shake (batida de caneca na mesa de madeira!)
-	camera.add_trauma(0.7)
+	audio_manager.play_table_hit()
+	camera.add_trauma(0.75)
 	
 	if caller_id == 1:
-		truco_dialog_text.text = "Oponente bateu na mesa: %s (%d pontos)!" % [call_title, bet_level]
+		bardo_portrait.on_truco_called()
+		truco_dialog_text.text = "Sylas bateu a caneca na mesa: %s (%d pontos)!" % [call_title, bet_level]
 		truco_dialog.visible = true
 	else:
-		await get_tree().create_timer(1.0).timeout
+		await get_tree().create_timer(1.2).timeout
 		var ai_resp = opponent_ai.answer_truco_call(match_manager)
 		match_manager.answer_truco(1, ai_resp["accept"], ai_resp.get("raise_bet", false))
 
+func _on_truco_answered(responder_id: int, accepted: bool, raised: bool, _bet: int) -> void:
+	if responder_id == 1:
+		bardo_portrait.on_truco_response(accepted, raised)
+
 func _on_treco_activated(player_id: int, treco_name: String) -> void:
-	var msg = ("Você ativou " if player_id == 0 else "Oponente ativou ") + treco_name
+	audio_manager.play_potion()
+	var msg = ("Você usou " if player_id == 0 else "Sylas usou ") + treco_name
 	_show_banner(msg, Color("52b788"), 1.3)
 	camera.add_trauma(0.25)
+	if player_id == 1:
+		bardo_portrait.on_treco_used()
 
 func _on_truco_button_pressed() -> void:
 	match_manager.call_truco(0)
