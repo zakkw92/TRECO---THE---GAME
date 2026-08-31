@@ -1,19 +1,14 @@
 class_name CandleLight
 extends PointLight2D
 
-@export var min_energy: float = 0.9
-@export var max_energy: float = 1.3
-@export var flicker_speed: float = 8.0
-
-var noise := FastNoiseLite.new()
-var time: float = 0.0
+var base_energy: float = 1.2
+var noise_speed: float = 4.0
+var time_passed: float = 0.0
 
 func _ready() -> void:
-	color = Color("ffaa44") # Luz quente de taverna
-	noise.seed = randi()
-	noise.frequency = 0.5
+	base_energy = energy
 
 func _process(delta: float) -> void:
-	time += delta * flicker_speed
-	var noise_val = (noise.get_noise_1d(time) + 1.0) / 2.0
-	energy = lerp(min_energy, max_energy, noise_val)
+	time_passed += delta * noise_speed
+	var flicker = sin(time_passed) * 0.15 + sin(time_passed * 2.3) * 0.08 + randf_range(-0.04, 0.04)
+	energy = base_energy + flicker

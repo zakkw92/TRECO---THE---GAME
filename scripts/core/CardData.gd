@@ -1,17 +1,31 @@
 class_name CardData
 extends Resource
 
-enum Suit { OUROS = 0, ESPADAS = 1, COPAS = 2, PAUS = 3 }
+enum Suit { OUROS, ESPADAS, COPAS, PAUS }
 
 @export var suit: Suit
-@export var rank_value: int # 4, 5, 6, 7, 11 (Q), 12 (J), 13 (K), 1 (A), 2, 3
+@export var rank_value: int
 @export var is_manilha: bool = false
-@export var is_revealed: bool = false # Para efeitos de espionagem (Olho de Lince)
-@export var is_face_down: bool = false # Para blefe de carta virada (Cara de Pau)
+@export var is_revealed: bool = false
+@export var is_face_down: bool = false
 
-func _init(p_suit: Suit = Suit.OUROS, p_rank: int = 4) -> void:
+func _init(p_suit: Suit = Suit.OUROS, p_rank_value: int = 4) -> void:
 	suit = p_suit
-	rank_value = p_rank
+	rank_value = p_rank_value
+
+func get_rank_name() -> String:
+	match rank_value:
+		4: return "4"
+		5: return "5"
+		6: return "6"
+		7: return "7"
+		8: return "Q"
+		9: return "J"
+		10: return "K"
+		11: return "A"
+		12: return "2"
+		13: return "3"
+		_: return str(rank_value)
 
 func get_suit_name() -> String:
 	match suit:
@@ -21,16 +35,5 @@ func get_suit_name() -> String:
 		Suit.PAUS: return "Paus"
 		_: return "Desconhecido"
 
-func get_rank_name() -> String:
-	match rank_value:
-		1: return "Ás"
-		11: return "Dama (Q)"
-		12: return "Valete (J)"
-		13: return "Rei (K)"
-		_: return str(rank_value)
-
 func to_string_short() -> String:
-	var label = get_rank_name() + " de " + get_suit_name()
-	if is_manilha:
-		label += " [MANILHA]"
-	return label
+	return "%s de %s" % [get_rank_name(), get_suit_name()]

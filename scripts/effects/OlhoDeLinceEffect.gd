@@ -10,15 +10,14 @@ func _init() -> void:
 func apply_effect(match_manager, activator_id: int) -> bool:
 	var opponent_id = 1 if activator_id == 0 else 0
 	if match_manager.is_player_protected_from_spying(opponent_id):
-		print("[TRECO] Olho de Lince falhou: protegido por Fumaça de Taverna!")
 		return false
 	var opponent_hand = match_manager.get_player_hand(opponent_id)
-	var unrevealed_cards: Array[CardData] = []
+	var unrevealed: Array[CardData] = []
 	for card in opponent_hand:
 		if not card.is_revealed:
-			unrevealed_cards.append(card)
-	if unrevealed_cards.is_empty():
+			unrevealed.append(card)
+	if unrevealed.is_empty():
 		return false
-	unrevealed_cards.shuffle()
-	unrevealed_cards[0].is_revealed = true
+	unrevealed.shuffle()
+	unrevealed[0].is_revealed = true
 	return true

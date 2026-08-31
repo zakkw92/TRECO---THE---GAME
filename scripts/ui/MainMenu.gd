@@ -17,7 +17,6 @@ func _ready() -> void:
 	crt_toggle_btn.toggled.connect(_on_crt_toggled)
 
 func _on_play_pressed() -> void:
-	print("[TRECO] Carregando a Taverna...")
 	var table_scene = load("res://scenes/TavernTable.tscn")
 	if table_scene != null:
 		get_tree().change_scene_to_packed(table_scene)

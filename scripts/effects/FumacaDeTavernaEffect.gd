@@ -3,7 +3,7 @@ extends TrecoEffect
 
 func _init() -> void:
 	item_name = "Fumaça de Taverna"
-	description = "Contra-Espionagem: Esconde sua manilha de qualquer revelação do oponente nesta rodada."
+	description = "Contra-Espionagem: Esconde suas cartas de qualquer revelação do oponente nesta rodada."
 	energy_cost = 1
 	activation_window = ActivationWindow.PRE_PLAY
 

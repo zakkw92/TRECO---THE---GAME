@@ -9,5 +9,5 @@ enum ActivationWindow { PREPARATION, PRE_PLAY, REACTION, BLIND_BET }
 @export var activation_window: ActivationWindow = ActivationWindow.PRE_PLAY
 
 func apply_effect(match_manager, activator_id: int) -> bool:
-	push_error("apply_effect() não foi implementado para este Treco!")
+	push_error("apply_effect() não implementado para este Treco!")
 	return false

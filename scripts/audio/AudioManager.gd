@@ -54,7 +54,6 @@ func play_click() -> void:
 		click_player.pitch_scale = randf_range(0.98, 1.02)
 		click_player.play()
 
-# 44.1kHz 16-bit Sound Synthesizers
 func _create_table_hit_sound() -> AudioStreamWAV:
 	var sample_rate = 44100
 	var duration = 0.35

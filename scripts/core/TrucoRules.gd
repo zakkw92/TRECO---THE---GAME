@@ -1,98 +1,81 @@
 class_name TrucoRules
 extends RefCounted
 
-# Ordem natural de força das cartas no Truco (sem ser Manilha)
-# 4 (mais fraca) -> 3 (mais forte)
-const BASE_RANKS: Array[int] = [4, 5, 6, 7, 11, 12, 13, 1, 2, 3]
+const RANK_ORDER: Array[int] = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
-# Retorna a carta manilha correspondente ao Vira
+const SUIT_STRENGTH_MAP: Dictionary = {
+	CardData.Suit.OUROS: 100,
+	CardData.Suit.ESPADAS: 200,
+	CardData.Suit.COPAS: 300,
+	CardData.Suit.PAUS: 400
+}
+
 static func get_manilha_rank_for_vira(vira_rank: int) -> int:
-	var idx = BASE_RANKS.find(vira_rank)
+	var idx = RANK_ORDER.find(vira_rank)
 	if idx == -1:
 		return 4
-	var next_idx = (idx + 1) % BASE_RANKS.size()
-	return BASE_RANKS[next_idx]
+	return RANK_ORDER[(idx + 1) % RANK_ORDER.size()]
 
-# Calcula o valor numérico absoluto de força de uma carta para comparação
-static func get_card_strength(card: CardData, vira_card: CardData) -> int:
-	if card == null or vira_card == null:
+static func get_card_strength(card: CardData, vira: CardData) -> int:
+	if card == null:
 		return -1
-	var manilha_rank = get_manilha_rank_for_vira(vira_card.rank_value)
-	
-	# Se a carta for a Manilha da rodada
+	var manilha_rank = get_manilha_rank_for_vira(vira.rank_value)
 	if card.rank_value == manilha_rank:
-		match card.suit:
-			CardData.Suit.OUROS: return 100 # Pica-fumo
-			CardData.Suit.ESPADAS: return 101 # Espadilha
-			CardData.Suit.COPAS: return 102 # Copas
-			CardData.Suit.PAUS: return 103 # Zap (Maior manilha)
-			_: return 100
-	
-	# Carta comum: força base no array
-	var idx = BASE_RANKS.find(card.rank_value)
-	return idx if idx != -1 else 0
+		return 1000 + int(SUIT_STRENGTH_MAP.get(card.suit, 0))
+	return card.rank_value
 
-# Compara duas cartas. Retorna: 1 se card1 vence, -1 se card2 vence, 0 se empate (canga)
-static func compare_cards(card1: CardData, card2: CardData, vira_card: CardData) -> int:
-	var s1 = get_card_strength(card1, vira_card)
-	var s2 = get_card_strength(card2, vira_card)
-	if s1 > s2:
-		return 1
-	elif s1 < s2:
-		return -1
-	else:
+static func compare_cards(card_a: CardData, card_b: CardData, vira: CardData) -> int:
+	var str_a = get_card_strength(card_a, vira)
+	var str_b = get_card_strength(card_b, vira)
+	if str_a > str_b:
 		return 0
-
-# Retorna o próximo valor de aposta de Truco (1 -> 3 -> 6 -> 9 -> 12)
-static func get_next_bet(current_bet: int) -> int:
-	match current_bet:
-		1: return 3
-		3: return 6
-		6: return 9
-		9: return 12
-		_: return 12
-
-# Avalia se a mão terminou baseado no histórico de vazas.
-# Retorna: 0 ou 1 se houver vencedor definido, -1 se a mão continua, -2 se empate triplo (anulada)
-static func evaluate_hand_winner(trick_history: Array[int]) -> int:
-	var count = trick_history.size()
-	if count == 0:
+	elif str_b > str_a:
+		return 1
+	else:
 		return -1
-		
+
+static func resolve_trick(played_cards: Array, starter_id: int, vira: CardData) -> Dictionary:
+	var card_0: CardData = played_cards[0]
+	var card_1: CardData = played_cards[1]
+	
+	if card_0.is_face_down and card_1.is_face_down:
+		return {"winner": -1, "is_draw": true}
+	elif card_0.is_face_down:
+		return {"winner": 1, "is_draw": false}
+	elif card_1.is_face_down:
+		return {"winner": 0, "is_draw": false}
+	
+	var comp = compare_cards(card_0, card_1, vira)
+	if comp == -1:
+		return {"winner": -1, "is_draw": true}
+	return {"winner": comp, "is_draw": false}
+
+static func evaluate_hand_winner(trick_results: Array) -> int:
 	var p0_wins = 0
 	var p1_wins = 0
-	for res in trick_history:
+	var draws = 0
+	
+	for res in trick_results:
 		if res == 0: p0_wins += 1
 		elif res == 1: p1_wins += 1
-
-	# Caso direto: alguém já fez 2 vazas
+		elif res == -1: draws += 1
+	
 	if p0_wins >= 2: return 0
 	if p1_wins >= 2: return 1
-
-	# Resolução de 2 vazas jogadas:
-	if count == 2:
-		if trick_history[0] == -1:
-			if trick_history[1] == 0: return 0
-			elif trick_history[1] == 1: return 1
-		elif trick_history[1] == -1:
-			return trick_history[0]
-
-	# Resolução de 3 vazas jogadas:
-	if count == 3:
-		if trick_history[0] == -1 and trick_history[1] == -1:
-			if trick_history[2] == 0: return 0
-			elif trick_history[2] == 1: return 1
-			else: return -2
-			
-		if trick_history[2] == -1:
-			if trick_history[0] != -1:
-				return trick_history[0]
-			else:
-				return trick_history[1]
-				
-		if p0_wins > p1_wins: return 0
-		if p1_wins > p0_wins: return 1
-		if p0_wins == p1_wins:
-			return trick_history[0] if trick_history[0] != -1 else -2
-
-	return -1
+	
+	if trick_results.size() >= 1 and trick_results[0] == -1:
+		if trick_results.size() >= 2:
+			if trick_results[1] != -1:
+				return trick_results[1]
+			if trick_results.size() >= 3:
+				if trick_results[2] != -1:
+					return trick_results[2]
+				return 0
+	
+	if trick_results.size() >= 2 and trick_results[1] == -1:
+		return trick_results[0]
+	
+	if trick_results.size() >= 3 and trick_results[2] == -1:
+		return trick_results[0]
+	
+	return -2
