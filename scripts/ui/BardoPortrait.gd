@@ -73,7 +73,11 @@ func speak(text: String, duration: float = 2.5) -> void:
 	
 	current_tween.chain().tween_interval(duration)
 	current_tween.chain().tween_property(speech_bubble, "modulate:a", 0.0, 0.3)
-	current_tween.finished.connect(func(): if speech_bubble != null: speech_bubble.visible = false)
+	current_tween.finished.connect(_on_speech_finished)
+
+func _on_speech_finished() -> void:
+	if speech_bubble != null:
+		speech_bubble.visible = false
 
 func on_truco_called() -> void:
 	speak(QUOTES_TRUCO_CALL.pick_random(), 3.0)
