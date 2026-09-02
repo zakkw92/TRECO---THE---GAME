@@ -60,9 +60,28 @@ func _init_catalogue() -> void:
 	]
 
 func _roll_random_trecos_for_round() -> void:
-	var pool = all_trecos_catalogue.duplicate()
-	pool.shuffle()
-	round_trecos = [pool[0], pool[1], pool[2]]
+	var available: Array[TrecoEffect] = all_trecos_catalogue.duplicate()
+	round_trecos.clear()
+	
+	# Sorteio ponderado de 3 Trecos únicos por rodada
+	while round_trecos.size() < 3 and not available.is_empty():
+		var total_weight = 0
+		for t in available:
+			total_weight += t.rarity_weight
+		
+		var roll = randi_range(1, total_weight)
+		var current_sum = 0
+		var chosen_idx = 0
+		
+		for i in range(available.size()):
+			current_sum += available[i].rarity_weight
+			if roll <= current_sum:
+				chosen_idx = i
+				break
+		
+		round_trecos.append(available[chosen_idx])
+		available.remove_at(chosen_idx)
+	
 	_build_treco_modal_tiles()
 
 func _connect_signals() -> void:

@@ -1,7 +1,6 @@
 # Godot-specific ignores
 .godot/
 *.translation
-*.import
 export/
 build/
 assets/sprites/deck_pack/
