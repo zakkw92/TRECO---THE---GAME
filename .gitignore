@@ -3,7 +3,9 @@
 *.translation
 *.import
 export/
-export_presets.cfg
+build/
+*.pck
+*.wasm
 
 # OS and Editor ignores
 .DS_Store
