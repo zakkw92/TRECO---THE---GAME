@@ -29,11 +29,17 @@ jobs:
         run: |
           godot --headless --export-release "Web" build/web/index.html
 
-      - name: 🌐 Deploy Automático para Itch.io
-        uses: josephbmanley/butler-publish-itchio-action@v1.0.3
+      - name: 📦 Instalar Butler CLI Oficial
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip -d /usr/local/bin
+          chmod +x /usr/local/bin/butler
+          butler -V
+
+      - name: 🌐 Deploy Direto para Itch.io via Butler
         env:
-          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-          CHANNEL: html5
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
           ITCH_USER: ${{ secrets.ITCH_USER || 'simaogui' }}
           ITCH_GAME: ${{ secrets.ITCH_GAME || 'treco-truco-da-taverna' }}
-          PACKAGE: build/web
+        run: |
+          butler push build/web ${ITCH_USER}/${ITCH_GAME}:html5
