@@ -215,20 +215,29 @@ func _refresh_hands_ui() -> void:
 		p1_hand_container.add_child(card_node)
 		card_node.setup(card, false, not card.is_revealed)
 
+var is_resolving_trick: bool = false
+
 func _on_player_card_clicked(card: CardData) -> void:
-	if match_manager.current_turn != 0:
+	if is_resolving_trick or match_manager.current_turn != 0:
 		return
 	audio_manager.play_card_slide()
 	match_manager.play_card(0, card)
 	_refresh_hands_ui()
 
 func _on_turn_changed(player_id: int) -> void:
-	if player_id == 1:
+	if player_id == 1 and not is_resolving_trick:
 		_trigger_ai_turn()
 
 func _trigger_ai_turn() -> void:
+	if is_resolving_trick:
+		return
+	if match_manager.current_state != MatchManager.State.PRE_PLAY:
+		return
+	if match_manager.current_turn != 1:
+		return
+		
 	await get_tree().create_timer(0.7).timeout
-	if match_manager.current_state == MatchManager.State.GAME_OVER:
+	if is_resolving_trick or match_manager.current_state != MatchManager.State.PRE_PLAY or match_manager.current_turn != 1:
 		return
 	
 	var treco_to_use = opponent_ai.think_treco_pre_play(match_manager)
@@ -261,6 +270,7 @@ func _on_card_played(player_id: int, card: CardData) -> void:
 		camera.add_trauma(0.35)
 
 func _on_trick_resolved(winner: int, is_draw: bool, _idx: int) -> void:
+	is_resolving_trick = true
 	if is_draw:
 		_show_banner("CANGA! (EMPATE)", Color("ffffff"), 1.2)
 		camera.add_trauma(0.3)
@@ -273,6 +283,11 @@ func _on_trick_resolved(winner: int, is_draw: bool, _idx: int) -> void:
 	
 	await get_tree().create_timer(1.2).timeout
 	_clear_played_cards()
+	is_resolving_trick = false
+	_refresh_hands_ui()
+	
+	if match_manager.current_state == MatchManager.State.PRE_PLAY and match_manager.current_turn == 1:
+		_trigger_ai_turn()
 
 func _clear_played_cards() -> void:
 	for c in played_p0_container.get_children(): c.queue_free()

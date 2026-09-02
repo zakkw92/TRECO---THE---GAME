@@ -216,6 +216,7 @@ func answer_truco(responder_id: int, accept: bool, raise_bet: bool = false) -> v
 	truco_answered.emit(responder_id, true, false, current_bet)
 	log_message.emit("Jogador %d ACEITOU! A mão agora vale %d pontos!" % [responder_id, current_bet])
 	_set_state(State.PRE_PLAY)
+	turn_changed.emit(current_turn)
 
 func use_treco(player_id: int, treco: TrecoEffect) -> bool:
 	if trecos_used_this_round[player_id] >= 1:
