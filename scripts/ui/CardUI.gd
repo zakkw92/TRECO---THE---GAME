@@ -64,7 +64,7 @@ func _setup_shader_material() -> void:
 	if front_texture != null:
 		front_texture.material = card_material
 	if back_texture != null:
-		back_texture.material = card_material
+		back_texture.material = null
 
 func setup(p_card_data: CardData, p_interactive: bool = true, p_force_face_down: bool = false) -> void:
 	card_data = p_card_data
@@ -152,9 +152,11 @@ func update_visuals() -> void:
 		manilha_glow.visible = card_data.is_manilha and not show_back
 	
 	if card_material != null:
-		card_material.set_shader_parameter("is_manilha", card_data.is_manilha)
-		card_material.set_shader_parameter("is_zap", card_data.is_manilha and card_data.suit == CardData.Suit.PAUS)
-		card_material.set_shader_parameter("foil_intensity", 0.6 if card_data.is_manilha else 0.0)
+		var show_foil = card_data.is_manilha and not show_back
+		var is_zap = card_data.is_manilha and card_data.suit == CardData.Suit.PAUS and not show_back
+		card_material.set_shader_parameter("is_manilha", show_foil)
+		card_material.set_shader_parameter("is_zap", is_zap)
+		card_material.set_shader_parameter("foil_intensity", 0.6 if show_foil else 0.0)
 
 func animate_flip(reveal: bool, duration: float = 0.3) -> void:
 	var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
