@@ -10,8 +10,8 @@ env:
   GODOT_VERSION: "4.3"
 
 jobs:
-  export-and-deploy:
-    name: "Export Web & Deploy to Itch.io"
+  export-web:
+    name: "🎮 Export WebGL Build (HTML5)"
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.3
@@ -25,9 +25,26 @@ jobs:
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
           mkdir -v -p build/web
 
-      - name: 🎮 Export WebGL Build (HTML5)
+      - name: 🛠️ Export Project
         run: |
           godot --headless --export-release "Web" build/web/index.html
+
+      - name: 📤 Upload Web Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web
+
+  deploy-itch:
+    name: "🌐 Deploy para Itch.io via Butler"
+    needs: export-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Download Web Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/web
 
       - name: 📦 Instalar Butler CLI Oficial
         run: |
@@ -36,7 +53,7 @@ jobs:
           chmod +x /usr/local/bin/butler
           butler -V
 
-      - name: 🌐 Deploy Direto para Itch.io via Butler
+      - name: 🚀 Publicar no Itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
           ITCH_USER: ${{ secrets.ITCH_USER || 'simaogui' }}
