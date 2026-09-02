@@ -46,12 +46,8 @@ jobs:
           name: web-build
           path: build/web
 
-      - name: 📦 Instalar Butler CLI Oficial
-        run: |
-          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-          unzip butler.zip -d /usr/local/bin
-          chmod +x /usr/local/bin/butler
-          butler -V
+      - name: 📦 Setup Butler CLI
+        uses: remarkablegames/setup-butler@v3
 
       - name: 🚀 Publicar no Itch.io
         env:
