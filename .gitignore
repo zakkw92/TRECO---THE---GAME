@@ -4,6 +4,7 @@
 *.import
 export/
 build/
+assets/sprites/deck_pack/
 *.pck
 *.wasm
 
