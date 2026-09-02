@@ -11,6 +11,12 @@ const SUIT_STRENGTH_MAP: Dictionary = {
 }
 
 static func get_manilha_rank_for_vira(vira_rank: int) -> int:
+	# Regra da Taverna: quando o tombo/vira for 2 ou 3, a manilha é o 4
+	if vira_rank == 12: # 2
+		return 4
+	if vira_rank == 13: # 3
+		return 4
+	
 	var idx = RANK_ORDER.find(vira_rank)
 	if idx == -1:
 		return 4
