@@ -129,24 +129,30 @@ func update_visuals() -> void:
 	var show_back = is_face_down_override or card_data.is_face_down
 	if card_data.is_revealed:
 		show_back = false
-	
 	if back_texture != null:
 		back_texture.visible = show_back
+	
+	var has_custom_sprite = false
 	if front_texture != null:
 		front_texture.visible = not show_back
+		if not show_back:
+			var sprite_path = "res://assets/sprites/cards/card_%d_%d.png" % [card_data.suit, card_data.rank_value]
+			if ResourceLoader.exists(sprite_path):
+				front_texture.texture = load(sprite_path)
+				has_custom_sprite = true
 	
 	var r_text = card_data.get_rank_name()
 	if top_rank_label != null:
 		top_rank_label.text = r_text
-		top_rank_label.visible = not show_back
+		top_rank_label.visible = not show_back and not has_custom_sprite
 	if bottom_rank_label != null:
 		bottom_rank_label.text = r_text
-		bottom_rank_label.visible = not show_back
+		bottom_rank_label.visible = not show_back and not has_custom_sprite
 		
 	if center_suit_label != null:
 		center_suit_label.text = _get_suit_symbol(card_data.suit)
 		center_suit_label.modulate = _get_suit_color(card_data.suit)
-		center_suit_label.visible = not show_back
+		center_suit_label.visible = not show_back and not has_custom_sprite
 	
 	if manilha_glow != null:
 		manilha_glow.visible = card_data.is_manilha and not show_back
