@@ -257,6 +257,7 @@ func _on_card_played(player_id: int, card: CardData) -> void:
 	card_node.animate_slam(0.2)
 	
 	if card.is_manilha:
+		audio_manager.play_table_hit()
 		camera.add_trauma(0.35)
 
 func _on_trick_resolved(winner: int, is_draw: bool, _idx: int) -> void:
@@ -314,7 +315,7 @@ func _on_truco_called(caller_id: int, bet_level: int) -> void:
 	var call_title = "TRUCO!" if bet_level == 3 else ("SEIS!" if bet_level == 6 else ("NOVE!" if bet_level == 9 else "DOZE!"))
 	_show_banner("BATIDA NA MESA: " + call_title, Color("e63946"), 1.5)
 	
-	audio_manager.play_table_hit()
+	audio_manager.play_truco_slam()
 	camera.add_trauma(0.75)
 	
 	if caller_id == 1:
