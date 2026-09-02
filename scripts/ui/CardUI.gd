@@ -137,8 +137,9 @@ func update_visuals() -> void:
 		front_texture.visible = not show_back
 		if not show_back:
 			var sprite_path = "res://assets/sprites/cards/card_%d_%d.png" % [card_data.suit, card_data.rank_value]
-			if ResourceLoader.exists(sprite_path):
-				front_texture.texture = load(sprite_path)
+			var tex = load(sprite_path) as Texture2D
+			if tex != null:
+				front_texture.texture = tex
 				has_custom_sprite = true
 	
 	var r_text = card_data.get_rank_name()
