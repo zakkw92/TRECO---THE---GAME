@@ -34,6 +34,6 @@ jobs:
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
           CHANNEL: html5
-          ITCH_USER: ${{ secrets.ITCH_USER || 'zakkw92' }}
+          ITCH_USER: ${{ secrets.ITCH_USER || 'simaogui' }}
           ITCH_GAME: ${{ secrets.ITCH_GAME || 'treco-truco-da-taverna' }}
           PACKAGE: build/web
