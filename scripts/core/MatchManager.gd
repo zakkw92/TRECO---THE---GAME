@@ -177,6 +177,16 @@ func call_truco(caller_id: int) -> bool:
 	if last_truco_raiser == caller_id:
 		return false
 	
+	# Penalidade da Mão de 11 do Truco Paulista: pedir Truco com 11 pontos causa derrota imediata
+	if score[caller_id] == 11:
+		var other_player = 1 if caller_id == 0 else 0
+		score[other_player] = 12
+		score_updated.emit(score[0], score[1])
+		log_message.emit("PENALIDADE! Jogador %d pediu Truco na Mão de 11 e perdeu a partida imediatamente!" % caller_id)
+		_set_state(State.GAME_OVER)
+		match_ended.emit(other_player)
+		return false
+	
 	var next_bet = _get_next_bet_level(current_bet)
 	if next_bet == -1:
 		return false
